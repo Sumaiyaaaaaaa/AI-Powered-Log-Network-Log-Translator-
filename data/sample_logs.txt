@@ -1,0 +1,4 @@
+<34>Oct 11 22:14:15 server sshd: Failed password for root
+<13>Oct 11 22:15:10 server sshd: Accepted password for user
+SNMP Trap: Link Down
+SNMP Trap: CPU High
