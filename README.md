@@ -7,5 +7,3 @@ AI-powered tool that converts complex network logs into simple, human-readable i
 - Detects anomalies using AI
 - Translates logs into plain English
 
-## Status
-🚧 In Progress
