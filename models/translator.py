@@ -1,4 +1,4 @@
-def analyze_log(log):
+def translate_log(log):
     log = log.upper()
 
     if "FAILED" in log and "SSH" in log:
