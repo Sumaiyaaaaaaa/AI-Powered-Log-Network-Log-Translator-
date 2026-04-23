@@ -1,45 +1,28 @@
 import time
 
 def analyze_log(log):
+    try:
+        # ✅ FORCE SAFE STRING CONVERSION
+        log_str = str(log) if log is not None else ""
 
-    # Convert dict OR string → unified string
-    if isinstance(log, dict):
-        log_str = " ".join([f"{k}={v}" for k, v in log.items()])
-    else:
-        log_str = str(log)
+        log_str = log_str.upper()
 
-    log_str = log_str.upper()
+        # 🚨 BRUTE FORCE
+        if "FAILED" in log_str:
+            return "ATTACK", "Multiple failed login attempts detected"
 
-    # 🚨 BRUTE FORCE
-    if "FAILED" in log_str and ("SSH" in log_str or "LOGIN" in log_str):
-        return "ATTACK", "Multiple failed login attempts detected"
+        # 🚨 PORT SCAN
+        if any(p in log_str for p in ["DPT=21", "DPT=22", "DPT=23"]):
+            return "ATTACK", "Port scanning activity detected"
 
-    # 🚨 PORT SCAN
-    if any(p in log_str for p in ["DPT=21", "DPT=22", "DPT=23"]):
-        return "ATTACK", "Port scanning activity detected"
+        # 🚨 BLOCKED
+        if "BLOCK" in log_str:
+            return "SUSPICIOUS", "Blocked unauthorized access attempt"
 
-    # 🚨 DDOS
-    if "FLAGS=SYN" in log_str and "DPT=80" in log_str:
-        return "SUSPICIOUS", "Possible SYN flood attack"
+        return "NORMAL", "General system activity detected"
 
-    # 🚨 DATA EXFILTRATION
-    if "BYTES_SENT" in log_str:
-        try:
-            bytes_sent = int(log_str.split("BYTES_SENT=")[1].split()[0])
-            if bytes_sent > 5000000:
-                return "SUSPICIOUS", "Large data transfer detected"
-        except:
-            pass
-
-    # 🚨 BLOCKED ACCESS
-    if "ACTION=BLOCK" in log_str:
-        return "SUSPICIOUS", "Blocked unauthorized access attempt"
-
-    # 🚨 Sensitive ports
-    if "DPT=3389" in log_str or "DPT=22" in log_str:
-        return "SUSPICIOUS", "Access attempt to sensitive service port"
-
-    return "NORMAL", "General system activity detected"
+    except Exception as e:
+        return "ERROR", f"Processing failed: {str(e)}"
 
 
 def translate_log(log):
