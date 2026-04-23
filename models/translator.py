@@ -1,20 +1,24 @@
-def translate_log(log):
-    event = log["event"].lower()
+def analyze_log(log):
+    log = log.upper()
 
-    if "failed password" in event:
-        return "A login attempt failed. This could indicate unauthorized access."
+    if "FAILED" in log and "SSH" in log:
+        return "ATTACK", "Multiple failed SSH login attempts detected"
 
-    elif "accepted password" in event:
-        return "A user successfully logged into the system."
+    if "DPT=21" in log or "DPT=22" in log or "DPT=23" in log:
+        return "ATTACK", "Port scanning activity detected"
 
-    elif "link down" in event:
-        return "The network connection is down. This may impact connectivity."
+    if "FLAGS=SYN" in log and "DPT=80" in log:
+        return "SUSPICIOUS", "Possible SYN flood attack"
 
-    elif "cpu usage high" in event:
-        return "The system CPU usage is high. Performance may be affected."
+    if "BYTES_SENT=" in log:
+        try:
+            bytes_sent = int(log.split("BYTES_SENT=")[1].split()[0])
+            if bytes_sent > 5000000:
+                return "SUSPICIOUS", "Large data transfer detected"
+        except:
+            pass
 
-    elif "accept" in event:
-        return "Network traffic was allowed between two systems."
+    if "ACTION=BLOCK" in log:
+        return "SUSPICIOUS", "Blocked unauthorized access"
 
-    else:
-        return "General system activity detected."
+    return "NORMAL", "General system activity detected"
